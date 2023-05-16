@@ -19,6 +19,7 @@ let inputStream;
 let outputStream;
 let showCalibration = false;
 
+let rawAngles = [0, 0, 0];
 let orientation = [0, 0, 0];
 let quaternion = [1, 0, 0, 0];
 let calibration = [0, 0, 0, 0];
@@ -134,6 +135,9 @@ async function readLoop() {
       let plotdata;
       if (value.substr(0, 12) == "Orientation:") {
         orientation = value.substr(12).trim().split(",").map(x=>+x);
+      }
+      if (value.substr(0, 4) == "Raw:") {
+        rawAngles = value.substr(4).trim().split(",").map(x=>+x);
       }
       if (value.substr(0, 11) == "Quaternion:") {
         quaternion = value.substr(11).trim().split(",").map(x=>+x);
@@ -399,6 +403,7 @@ function saveSetting(setting, value) {
 }
 
 let bunny;
+let cube;
 
 const renderer = new THREE.WebGLRenderer({canvas});
 
@@ -433,6 +438,13 @@ scene.background = new THREE.Color('black');
   });
 }
 
+{
+  const geometry = new THREE.BoxGeometry( 10, 1, 10 ); 
+  const material = new THREE.MeshPhysicalMaterial( {color: 0x00ff00} ); 
+  cube = new THREE.Mesh( geometry, material ); 
+  scene.add(cube);
+}
+
 function resizeRendererToDisplaySize(renderer) {
   const canvas = renderer.domElement;
   const width = canvas.clientWidth;
@@ -452,7 +464,27 @@ async function render() {
   }
 
   if (bunny != undefined) {
-    if (angleType.value == "euler") {
+    if (angleType.value == "raw") {
+      bunny.visible = false;
+      cube.visible = true;
+
+      let rotationEuler = new THREE.Euler(
+        THREE.MathUtils.degToRad(rawAngles[0]),
+        0,
+        THREE.MathUtils.degToRad(90 - rawAngles[1]),
+        'XYZ'
+      );
+      cube.setRotationFromEuler(rotationEuler);
+
+      // let x = rawAngles[0] / 180
+      // let y = (90 - rawAngles[1]) / 180
+      // console.log(x, y);
+
+      // cube.quaternion.x = x
+      // cube.quaternion.y = y
+    } else if (angleType.value == "euler") {
+      bunny.visible = true;
+      cube.visible = false;
       if (showCalibration) {
           // BNO055
         let rotationEuler = new THREE.Euler(
@@ -472,6 +504,8 @@ async function render() {
         bunny.setRotationFromEuler(rotationEuler);
       }
     } else {
+      bunny.visible = true;
+      cube.visible = false;
       let rotationQuaternion = new THREE.Quaternion(quaternion[1], quaternion[3], -quaternion[2], quaternion[0]);
       bunny.setRotationFromQuaternion(rotationQuaternion);
     }

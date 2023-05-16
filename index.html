@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script>
       // Redirect to HTTPS if HTTP is requested.
-      if (window.location.protocol === 'http:') {
+      if (window.location.hostname !== 'localhost' && window.location.protocol === 'http:') {
         window.location.href = 'https:' + window.location.href.substring(5);
       }
     </script>
@@ -49,6 +49,7 @@
           <select id="angle_type">
             <option value="quaternion">Quaternions</option>
             <option value="euler">Euler Angles</option>
+            <option value="raw">Raw Angles</option>
           </select>
          </span>
         <input type="checkbox" id="darkmode"> Dark Mode
