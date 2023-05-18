@@ -82,7 +82,6 @@ button {
   flex: 1;
   overflow-x: hidden;
   overflow-y: auto;
-  padding-top: 80px;
   padding-left: 1em;
   padding-right: 1em;
 }
@@ -118,7 +117,7 @@ button {
 }
 
 .log {
-  height: calc(50vh - 120px);
+  height: calc(30vh - 120px);
   width: 100vw;
   font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
   font-size: 0.8em;
@@ -151,7 +150,7 @@ button {
 
 .animation-container {
   position: relative;
-  height:40vh;
+  height:70vh;
   width: 100%;
   margin: 10px auto;
 }

@@ -9,7 +9,6 @@
 'use strict';
 
 import * as THREE from 'three';
-import {OBJLoader} from 'objloader';
 
 let port;
 let reader;
@@ -402,7 +401,7 @@ function saveSetting(setting, value) {
   window.localStorage.setItem(setting, JSON.stringify(value));
 }
 
-let bunny;
+let axes;
 let cube;
 
 const renderer = new THREE.WebGLRenderer({canvas});
@@ -431,11 +430,29 @@ scene.background = new THREE.Color('black');
 }
 
 {
-  const objLoader = new OBJLoader();
-  objLoader.load('assets/bunny.obj', (root) => {
-    bunny = root;
-    scene.add(root);
-  });
+  const geometryX = new THREE.BoxGeometry( 10, 1, 1 ); 
+  const materialX = new THREE.MeshPhysicalMaterial( {color: 0xff0000} ); 
+  const meshX = new THREE.Mesh( geometryX, materialX ); 
+
+  const geometryY = new THREE.BoxGeometry( 1, 10, 1 ); 
+  const materialY = new THREE.MeshPhysicalMaterial( {color: 0x00ff00} ); 
+  const meshY = new THREE.Mesh( geometryY, materialY );
+  
+  const geometryZ = new THREE.BoxGeometry( 1, 1, 10 ); 
+  const materialZ = new THREE.MeshPhysicalMaterial( {color: 0x0000ff} ); 
+  const meshZ = new THREE.Mesh( geometryZ, materialZ );
+
+  meshX.position.x = 4.5
+  meshY.position.y = 4.5
+  meshZ.position.z = -4.5
+
+  axes = new THREE.Group();
+  axes.add( meshX );
+  axes.add( meshY );
+  axes.add( meshZ );
+
+
+  scene.add(axes);
 }
 
 {
@@ -463,9 +480,9 @@ async function render() {
     camera.updateProjectionMatrix();
   }
 
-  if (bunny != undefined) {
+  if (axes != undefined) {
     if (angleType.value == "raw") {
-      bunny.visible = false;
+      axes.visible = false;
       cube.visible = true;
 
       let rotationEuler = new THREE.Euler(
@@ -475,15 +492,8 @@ async function render() {
         'XYZ'
       );
       cube.setRotationFromEuler(rotationEuler);
-
-      // let x = rawAngles[0] / 180
-      // let y = (90 - rawAngles[1]) / 180
-      // console.log(x, y);
-
-      // cube.quaternion.x = x
-      // cube.quaternion.y = y
     } else if (angleType.value == "euler") {
-      bunny.visible = true;
+      axes.visible = true;
       cube.visible = false;
       if (showCalibration) {
           // BNO055
@@ -493,7 +503,7 @@ async function render() {
           THREE.MathUtils.degToRad(orientation[1]),
           'YZX'
         );
-        bunny.setRotationFromEuler(rotationEuler);
+        axes.setRotationFromEuler(rotationEuler);
       } else {
         let rotationEuler = new THREE.Euler(
           THREE.MathUtils.degToRad(orientation[2]),
@@ -501,13 +511,13 @@ async function render() {
           THREE.MathUtils.degToRad(-orientation[1]),
           'YZX'
         );
-        bunny.setRotationFromEuler(rotationEuler);
+        axes.setRotationFromEuler(rotationEuler);
       }
     } else {
-      bunny.visible = true;
+      axes.visible = true;
       cube.visible = false;
       let rotationQuaternion = new THREE.Quaternion(quaternion[1], quaternion[3], -quaternion[2], quaternion[0]);
-      bunny.setRotationFromQuaternion(rotationQuaternion);
+      axes.setRotationFromQuaternion(rotationQuaternion);
     }
   }
 
